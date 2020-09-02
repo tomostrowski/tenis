@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class Welcome {
     @GetMapping("/")
     public String welcome(){
-        return "Witam w API ligi tenisowej!";
+        return "Witam w API ligi tenisowej! Lista wszystkich endpointów znajduje się w linku swagger-ui.html";
     }
 
     @GetMapping("/admin")

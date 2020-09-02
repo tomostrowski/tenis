@@ -57,12 +57,7 @@ public class GroupApi {
         return groupManager.save(tennisGroup);
     }
 
-    @PutMapping
-    public TennisGroup updateGroup(@RequestBody Long id, TennisGroup update){
-        return groupManager.save(update);
-    }
-
-    @DeleteMapping("/{id}")
+     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteGroupById(@PathVariable Long id){
         TennisGroup group = groupManager.findGroupById(id).get();
         groupManager.deleteGroupById(id);
