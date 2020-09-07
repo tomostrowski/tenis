@@ -28,14 +28,14 @@ public class Game {
     @ManyToOne
     private TennisGroup tennisGroup;
 
-    @ManyToMany
-    private List<Player> players;
-
     @OneToOne
     private Player winner;
 
+    @ManyToMany
+    private List<Player> players;
+
     @OneToMany(mappedBy = "game")
-    private List<Score> scores;
+        private List<Score> scores;
 
     public Game(TennisGroup tennisGroup, List<Player> players) {
         this.tennisGroup= tennisGroup;

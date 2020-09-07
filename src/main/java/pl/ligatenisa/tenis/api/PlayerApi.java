@@ -1,6 +1,5 @@
 package pl.ligatenisa.tenis.api;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -11,47 +10,36 @@ import pl.ligatenisa.tenis.model.GameModel;
 import pl.ligatenisa.tenis.model.PlayerModel;
 import pl.ligatenisa.tenis.service.*;
 
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
 @RestController
-//        (value = "/api/player", produces = "text.plain;charset=UTF-8"
 @RequestMapping(value = "/api/player")
 @CrossOrigin
 public class PlayerApi {
 
-    private PlayerManager playerManager;
-    private GroupManager groupManager;
-    private StatManager statManager;
-    private GameManager gameManager;
-    private ScoreManager scoreManager;
+    private final PlayerManager playerManager;
+    private final GroupManager groupManager;
+    private final StatManager statManager;
+    private final GameManager gameManager;
 
     @Autowired
-    public PlayerApi(PlayerManager playerManager, GroupManager groupManager, StatManager statManager, GameManager gameManager, ScoreManager scoreManager) {
+    public PlayerApi(PlayerManager playerManager, GroupManager groupManager, StatManager statManager, GameManager gameManager) {
         this.playerManager = playerManager;
         this.groupManager = groupManager;
         this.statManager = statManager;
         this.gameManager = gameManager;
-        this.scoreManager = scoreManager;
     }
 
-    /** NOWA METODA Z UZYCIEM MODEL **/
-    @GetMapping("/{id}")
-    public PlayerModel getPlayer(@PathVariable Long id){
-        return playerManager.getPlayer(id);
+    //Metoda bez użycia MODELU POWSTAJE ZAGNIEZDZENIE!!
+    @GetMapping("/nest/{id}")
+    public Optional<Player> getPlayerNest(@PathVariable Long id){
+        return playerManager.findPlayerById(id);
     }
-
-    @GetMapping("/all")
-    public Iterable<PlayerModel> getAllPlayers(){
-        return playerManager.getPlayers();
-    }
-    /** ------ **/
-
 
     @PostMapping
-    public Player savePlayer(@RequestBody Player newPlayer){
+    public Player newPlayer(@RequestBody Player newPlayer){
         return playerManager.save(newPlayer);
     }
 
@@ -174,7 +162,11 @@ public class PlayerApi {
         Player player = playerManager.findPlayerById(id).get();
         TennisGroup tennisGroup = groupManager.findGroupById(groupId).get();
         Stat stat = statManager.findStatByPlayerAndTennisGroup(player, tennisGroup).get();
+        tennisGroup.getPlayers().remove(player);
+        player.getTennisGroups().remove(tennisGroup);
         statManager.deleteStatById(stat.getId());
+        groupManager.save(tennisGroup);
+        playerManager.save(player);
         return ResponseEntity.ok().body("Zawodnik przestał należeć do tej grupy i statystyki zostały usunięte.");
     }
 
@@ -184,12 +176,13 @@ public class PlayerApi {
     }
 
 
-    @PostMapping("/{id}/game/player={player2id}/group={groupId}/date={date}/winner={winnerId}")
-    public ResponseEntity<String> addNewGame(@PathVariable Long id, @PathVariable Long player2id, @PathVariable Long groupId, @PathVariable Long winnerId,
-                                             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate){
+    @PostMapping("/{id}/game/player={player2id}/group={groupId}/date={date}/time={time}")
+    public ResponseEntity<String> addNewGame(@PathVariable Long id, @PathVariable Long player2id, @PathVariable Long groupId,
+                                             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate,
+                                             @PathVariable("time") @DateTimeFormat(pattern = "HH:mm") LocalTime time){
         if(!id.equals(player2id)){ Player player1 = playerManager.findPlayerById(id).get();
         Player player2 = playerManager.findPlayerById(player2id).get();
-        Player winner = playerManager.findPlayerById(winnerId).get();
+//        Player winner = playerManager.findPlayerById(winnerId).get();
         List<Player> players = new ArrayList<>();
         players.add(player1);
         players.add(player2);
@@ -197,23 +190,11 @@ public class PlayerApi {
         Game game = new Game();
         game.setPlayers(players);
         game.setTennisGroup(tennisGroup);
-        game.setWinner(winner);
         game.setDate(localDate);
-        game.setTime(LocalTime.now());
+        game.setTime(time);
         gameManager.save(game);
-//        Score score1 = new Score();
-//        Score score2 = new Score();
-//        score1.setGame(game);
-//        score2.setGame(game);
-//        scoreManager.save(score1);
-//        scoreManager.save(score2);
-//        List<Score> scoreList = new ArrayList<>();
-//        scoreList.add(score1);
-//        scoreList.add(score2);
-//        game.setScores(scoreList);
-
         gameManager.save(game);
-        return ResponseEntity.ok().body("Mecz został dodany poprawnie.");
+        return ResponseEntity.ok().body("Mecz został dodany.");
         } else return ResponseEntity.badRequest().body("Mecz nie może być rozegrany z jednym i tym samym zawodnikiem.");
 
     }
@@ -223,6 +204,18 @@ public class PlayerApi {
         Player player = playerManager.findPlayerById(id).get();
         TennisGroup tennisGroup = groupManager.findGroupById(groupId).get();
         return  gameManager.findAllGamesByPlayersAndTennisGroup(player, tennisGroup);
+    }
+
+
+    // NOWA METODA Z UZYCIEM MODEL **/
+    @GetMapping("/{id}")
+    public PlayerModel getPlayer(@PathVariable Long id){
+        return playerManager.getPlayer(id);
+    }
+
+    @GetMapping("/all")
+    public Iterable<PlayerModel> getAllPlayers(){
+        return playerManager.getPlayers();
     }
 
 

@@ -6,8 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.core.annotation.Order;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 @Getter
@@ -22,15 +24,12 @@ public class TennisGroup {
     private Long id;
     private String name;
 
-    @ManyToMany(targetEntity = Player.class, mappedBy = "tennisGroups", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(targetEntity = Player.class, mappedBy = "tennisGroups" , cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     private Set<Player> players;
-
-
 
     public TennisGroup(String name) {
         this.name = name;
      }
-
 
     @Override
     public String toString() {

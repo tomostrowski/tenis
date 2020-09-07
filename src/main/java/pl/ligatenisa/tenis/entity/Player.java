@@ -12,32 +12,26 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
+
+@Entity
+@Table(name = "PLAYER")
 @Getter
 @Setter
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "PLAYER")
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id")
+
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//    @Size(min=2,  message="Imię musi by dłuższe niż dwa znaki")
+    @Size(min=2, message = "Imię powinno być dłuższe niż 2 znaki")
     private String name;
     @Size(min=2, message = "Nazwisko powinno być dłuższe niż 2 znaki")
     private String surname;
+    @Email(message = "Podaj adres email.")
     @Email
-//    @Column(unique = true)
     private String email;
-//    private int points;
-//    private int allMatches;
-//    private int wonMatches;
-//    private int lostMatches;
 
-    @OrderBy
     @ManyToMany(targetEntity = TennisGroup.class, cascade = {CascadeType.PERSIST,CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH})
     @JoinTable(
             name = "Player_Group",

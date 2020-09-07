@@ -13,18 +13,12 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 public class PlayerResponse {
-//    private Long id;
-//    private String name;
-//    private String surname;
-//    private String email;
     private Long id;
     private String name;
     private int points;
     private int allMatches;
     private int wonMatches;
     private int lostMatches;
-
-//    private Set<TennisGroup> tennisGroups;
 
     public PlayerResponse(Long groupId, String groupName) {
         this.id = groupId;

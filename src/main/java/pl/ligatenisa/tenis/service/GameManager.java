@@ -54,7 +54,8 @@ public class GameManager {
                 model.setSecondPlayerId(game.getPlayers().get(1).getId());
                 model.setSecondPlayer(game.getPlayers().get(1).getName()+" "+game.getPlayers().get(1).getSurname());
                 model.setTennisGroupId(game.getTennisGroup().getId());
-                model.setWinnerId(game.getWinner().getId());
+//                model.setWinnerId(game.getWinner().getId());
+                model.setWinnerId(15001L);
                 model.setScores(getScoreList(game));
                 gameModels.add(model);
             }
@@ -79,9 +80,9 @@ public class GameManager {
                         model.setSecondPlayer(game.getPlayers().get(1).getName()+" "+game.getPlayers().get(1).getSurname());
                     }
                 model.setTennisGroupId(game.getTennisGroup().getId());
-                model.setWinnerId(game.getWinner().getId());
                 model.setScores(getScoreList(game));
                 gameModels.add(model);
+                if(game.getWinner()!= null) model.setWinnerId(game.getWinner().getId());
             }
             return gameModels;
         } else return new LinkedHashSet<GameModel>();

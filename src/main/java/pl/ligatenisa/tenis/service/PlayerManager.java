@@ -9,8 +9,10 @@ import pl.ligatenisa.tenis.dao.GameRepo;
 import pl.ligatenisa.tenis.dao.GroupRepo;
 import pl.ligatenisa.tenis.dao.PlayerRepo;
 import pl.ligatenisa.tenis.dto.PlayerResponse;
+import pl.ligatenisa.tenis.entity.Stat;
 import pl.ligatenisa.tenis.entity.TennisGroup;
 import pl.ligatenisa.tenis.entity.Player;
+import pl.ligatenisa.tenis.exception.PlayerNotFoundExeption;
 import pl.ligatenisa.tenis.model.GroupModel;
 import pl.ligatenisa.tenis.model.PlayerModel;
 
@@ -55,21 +57,23 @@ public class PlayerManager {
         playerRepo.deleteById(id);
     }
 
+    public void deletePlayers(Set<Player> players){
+        playerRepo.deleteAll(players);
+    }
+
     public Optional<TennisGroup> findGroup(@PathVariable Long id){
         return groupRepo.findById(id);
     }
 
+    //z obsługą błędu 404 not found
     public PlayerModel getPlayer(Long id) {
-        if (playerRepo.findById(id).isPresent()) {
-            Player player = playerRepo.findById(id).get();
+            Player player = playerRepo.findById(id).orElseThrow(()-> new PlayerNotFoundExeption(id));
             PlayerModel playerModel = new PlayerModel();
             playerModel.setId(player.getId());
             playerModel.setName(player.getName());
             playerModel.setSurname(player.getSurname());
             playerModel.setEmail(player.getEmail());
-//            playerModel.setGroups(getGroupSet(player));
             return playerModel;
-        } else return null;
     }
 
     public Set<PlayerModel> getPlayers() {

@@ -96,7 +96,10 @@ public class GroupApi {
         Set<TennisGroupResponse> players = groupManager.getPlayersInGroup(id);
         Stream<TennisGroupResponse> stream = players.stream();
 
-        return stream.sorted(Comparator.comparing(TennisGroupResponse::getPoints).thenComparing(TennisGroupResponse::getWonMatches).reversed().thenComparing(TennisGroupResponse::getLostMatches)).collect(Collectors.toCollection(LinkedHashSet:: new));
+        return stream.sorted(Comparator.comparing(TennisGroupResponse::getPoints)
+                .thenComparing(TennisGroupResponse::getWonMatches)
+                .reversed().thenComparing(TennisGroupResponse::getLostMatches))
+                .collect(Collectors.toCollection(LinkedHashSet:: new));
     }
 
     @GetMapping("/{id}/allGames")
@@ -105,6 +108,17 @@ public class GroupApi {
         return  gameManager.findAllGamesByTennisGroup(tennisGroup);
     }
 
+    @PatchMapping("/{id}/removeAllPlayers")
+    public ResponseEntity<String> removePlayers(@PathVariable Long id){
+        TennisGroup group = groupManager.findGroupById(id).get();
+        Set<Player> players = group.getPlayers();
+        group.getPlayers().clear();
+        group.getPlayers().removeAll(players);
+        groupManager.save(group);
+        if (group.getPlayers().isEmpty())
+        return ResponseEntity.ok().body("Wszyscy zawodnicy z tej grupy zostali usunięci. Obecna liczba zawodników w tej grupie to "+group.getPlayers().size());
+        else return ResponseEntity.badRequest().body("Nie usunięto wszystkich zawodników z tej grupy");
+    }
 
     }
 
